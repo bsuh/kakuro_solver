@@ -178,20 +178,6 @@ assign = (cell) ->
     c.possible = c.possible.replace(cell.possible, '')
     if solved(c) then assign(c)
 
-# If only one cell is left unsolved in a row or column, solve it
-solveOnlyOneLeft = (rowcol) ->
-  unknowns = []
-  knownSum = 0
-  for c in rowcol
-    if !solved(c)
-      unknowns.push(c)
-    else
-      knownSum += Number(c.possible[0])
-
-  if unknowns.length == 1
-    unknowns[0].possible = String(rowcol.total - knownSum)
-    assign(unknowns[0])
-
 # Final solution
 solve = (board) !->
   do
@@ -213,6 +199,8 @@ solve = (board) !->
       if solved(cell)
         assign(cell)
 
+      # test through each possible value and see if it invalidates
+      # peers in the row or column
       impossible = ''
       possibleCopy = cell.possible
       for possibility in possibleCopy
@@ -235,17 +223,10 @@ solve = (board) !->
       cell.possible = difference(possibleCopy, impossible)
       if solved(cell)
         assign(cell)
-  
-    # solve only cell in row/col left unknown
-    for , cell of board
-      unknowns = []
-      knownSum = 0
-      solveOnlyOneLeft(cell.row)
-      solveOnlyOneLeft(cell.col)
   while numSolved(board) != _numSolved
 
   # backtracking search
-  for coords, cell of board
+  for , cell of board
     if solved(cell) then continue
 
     boardJson = saveBoardJson(board)
