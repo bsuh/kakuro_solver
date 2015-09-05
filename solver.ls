@@ -85,6 +85,7 @@ colPeers = (cell) -> [c for c in cell.col when c != cell]
 peers = (cell) -> rowPeers(cell).concat(colPeers(cell))
 
 # Get numbers in all combinations of left numbers that add up to total
+memoized = {}
 getPossible = (total, length, left='123456789') ->
   switch length
   case 0
@@ -97,6 +98,10 @@ getPossible = (total, length, left='123456789') ->
   if left.length == 0
     return ''
 
+  cached = memoized[[total, length, left]]
+  if cached != void
+    return cached
+
   possible = new Set()
   for i in left
     if possible.has(i) then continue
@@ -108,7 +113,7 @@ getPossible = (total, length, left='123456789') ->
     possible.add(i)
     for x in rest then possible.add(x)
 
-  Array.from(possible).join('')
+  memoized[[total, length, left]] = Array.from(possible).join('')
 
 console.assert(getPossible(17, 2) == '89')
 console.assert(getPossible(16, 2) == '79')
@@ -201,9 +206,7 @@ solve = (board) !->
     _numSolved = numSolved(board)
 
     # get possible values per row/col total
-    for , cell of board
-      if solved(cell) then continue
-  
+    for , cell of board when !solved(cell)
       rowPossible = getPossible2(cell.row)
       colPossible = getPossible2(cell.col)
       possible = intersection(rowPossible, colPossible)
@@ -214,10 +217,10 @@ solve = (board) !->
       testPossible(cell)
   while numSolved(board) != _numSolved
 
-  # backtracking search
-  for , cell of board
-    if solved(cell) then continue
+  setBoard(board)
 
+  # backtracking search
+  for , cell of board when !solved(cell)
     boardJson = saveBoardJson(board)
     possibleCopy = cell.possible
     for possible in possibleCopy
