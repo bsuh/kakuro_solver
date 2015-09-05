@@ -60,12 +60,11 @@ getBoard = function(){
   return board;
 };
 setBoard = function(board){
-  var i$, cell, results$ = [];
+  var i$, cell;
   for (i$ in board) {
     cell = board[i$];
-    results$.push(cell.node.value = cell.possible);
+    cell.node.value = cell.possible;
   }
-  return results$;
 };
 saveBoardJson = function(board){
   var board2, coords, cell;
@@ -79,12 +78,11 @@ saveBoardJson = function(board){
   return JSON.stringify(board2);
 };
 loadBoardJson = function(board, board2){
-  var coords, ref$, cell, results$ = [];
+  var coords, ref$, cell;
   for (coords in ref$ = JSON.parse(board2)) {
     cell = ref$[coords];
-    results$.push(board[coords].possible = cell.possible);
+    board[coords].possible = cell.possible;
   }
-  return results$;
 };
 rowPeers = function(cell){
   var i$, ref$, len$, c, results$ = [];
@@ -261,7 +259,7 @@ assign = function(cell){
     throw new Error("unsolvable board!");
   }
   assertTotal(cell.row);
-  return assertTotal(cell.col);
+  assertTotal(cell.col);
 };
 solve = function(board){
   var _numSolved, i$, cell, rowPossible, colPossible, possible, boardJson, possibleCopy, j$, len$, error;

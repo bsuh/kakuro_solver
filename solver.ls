@@ -63,7 +63,7 @@ getBoard = ->
   board
 
 # Display board
-setBoard = (board) ->
+setBoard = (board) !->
   for , cell of board
     cell.node.value = cell.possible
 
@@ -75,7 +75,7 @@ saveBoardJson = (board) ->
   JSON.stringify(board2)
 
 # Load board state for backtracking
-loadBoardJson = (board, board2) ->
+loadBoardJson = (board, board2) !->
   for coords, cell of JSON.parse(board2)
     board[coords].possible = cell.possible
 
@@ -151,7 +151,7 @@ solved = (cell) ->
 solvedCells = (.filter solved)
 
 # Check if total is correct
-assertTotal = (rowcol) ->
+assertTotal = (rowcol) !->
   if solvedCells(rowcol).length == rowcol.length
     if sum(rowcol.map((c) -> Number(c.possible[0]))) != rowcol.total
       throw new Error("unsolvable board!")
@@ -188,7 +188,7 @@ testPossible = (cell) ->
 numSolved = (board) -> [cell for , cell of board when solved(cell)].length
 
 # Cell is assigned value. Check for conflicts
-assign = (cell) ->
+assign = (cell) !->
   if Number(cell.possible) < 1 or Number(cell.possible) > 9
     throw new Error("unsolvable board!")
 
