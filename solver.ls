@@ -150,12 +150,39 @@ solved = (cell) ->
 # Get solved cells of row or column
 solvedCells = (.filter solved)
 
+# Check if total is correct
+assertTotal = (rowcol) ->
+  if solvedCells(rowcol).length == rowcol.length
+    if sum(rowcol.map((c) -> Number(c.possible[0]))) != rowcol.total
+      throw new Error("unsolvable board!")
+
 # Get possible numbers for a row or column
 getPossible2 = (rowcol) ->
   solvedNums = solvedCells(rowcol).map((c) -> Number(c.possible[0]))
   numsLeft = difference('123456789', solvedNums.join(''))
   getPossible(rowcol.total - sum(solvedNums),
               rowcol.length - solvedNums.length, numsLeft)
+
+# Try possibilities and see if they come up with
+# any contradictions in peers
+testPossible = (cell) ->
+  hasContradictions = (rowcol, peers) ->
+    newPossible = getPossible2(rowcol)
+    for peer in peers when !solved(peer)
+      if intersection(peer.possible, newPossible) == ''
+        return true
+
+  impossible = ''
+  possibleCopy = cell.possible
+  for possibility in possibleCopy
+    cell.possible = possibility
+    if hasContradictions(cell.row, rowPeers(cell)) or
+       hasContradictions(cell.col, colPeers(cell))
+      impossible += possibility
+
+  cell.possible = difference(possibleCopy, impossible)
+  if solved(cell)
+    assign(cell)
 
 # Number of cells solved in board
 numSolved = (board) -> [cell for , cell of board when solved(cell)].length
@@ -165,13 +192,8 @@ assign = (cell) ->
   if Number(cell.possible) < 1 or Number(cell.possible) > 9
     throw new Error("unsolvable board!")
 
-  if solvedCells(cell.row).length == cell.row.length
-    if sum(cell.row.map((c) -> Number(c.possible[0]))) != cell.row.total
-      throw new Error("unsolvable board!")
-
-  if solvedCells(cell.col).length == cell.col.length
-    if sum(cell.col.map((c) -> Number(c.possible[0]))) != cell.col.total
-      throw new Error("unsolvable board!")
+  assertTotal(cell.row)
+  assertTotal(cell.col)
 
 # Final solution
 solve = (board) !->
@@ -189,30 +211,7 @@ solve = (board) !->
       if solved(cell)
         assign(cell)
 
-      # test through each possible value and see if it invalidates
-      # peers in the row or column
-      impossible = ''
-      possibleCopy = cell.possible
-      for possibility in possibleCopy
-        cell.possible = possibility
-        foundImpossible = false
-        newRowPossible = getPossible2(cell.row)
-        for rowPeer in rowPeers(cell) when !solved(rowPeer)
-          if intersection(rowPeer.possible, newRowPossible) == ''
-            impossible += possibility
-            foundImpossible = true
-            break
-        if foundImpossible
-           continue
-        newColPossible = getPossible2(cell.col)
-        for colPeer in colPeers(cell) when !solved(colPeer)
-          if intersection(colPeer.possible, newColPossible) == ''
-            impossible += possibility
-            break
-
-      cell.possible = difference(possibleCopy, impossible)
-      if solved(cell)
-        assign(cell)
+      testPossible(cell)
   while numSolved(board) != _numSolved
 
   # backtracking search
