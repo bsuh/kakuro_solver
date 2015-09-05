@@ -160,7 +160,7 @@ getPossible2 = (rowcol) ->
 # Number of cells solved in board
 numSolved = (board) -> [cell for , cell of board when solved(cell)].length
 
-# Cell is assigned value. Propagate constraints
+# Cell is assigned value. Check for conflicts
 assign = (cell) ->
   if Number(cell.possible) < 1 or Number(cell.possible) > 9
     throw new Error("unsolvable board!")
@@ -173,21 +173,11 @@ assign = (cell) ->
     if sum(cell.col.map((c) -> Number(c.possible[0]))) != cell.col.total
       throw new Error("unsolvable board!")
 
-  for c in peers(cell)
-    if solved(c) then continue
-    c.possible = c.possible.replace(cell.possible, '')
-    if solved(c) then assign(c)
-
 # Final solution
 solve = (board) !->
   do
     _numSolved = numSolved(board)
 
-    # propagate constraints for solved cells
-    for , cell of board
-      if solved(cell)
-         assign(cell)
-  
     # get possible values per row/col total
     for , cell of board
       if solved(cell) then continue

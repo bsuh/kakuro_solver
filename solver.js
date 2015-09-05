@@ -220,7 +220,6 @@ numSolved = function(board){
   }()).length;
 };
 assign = function(cell){
-  var i$, ref$, len$, c, results$ = [];
   if (Number(cell.possible) < 1 || Number(cell.possible) > 9) {
     throw new Error("unsolvable board!");
   }
@@ -238,28 +237,11 @@ assign = function(cell){
       throw new Error("unsolvable board!");
     }
   }
-  for (i$ = 0, len$ = (ref$ = peers(cell)).length; i$ < len$; ++i$) {
-    c = ref$[i$];
-    if (solved(c)) {
-      continue;
-    }
-    c.possible = c.possible.replace(cell.possible, '');
-    if (solved(c)) {
-      results$.push(assign(c));
-    }
-  }
-  return results$;
 };
 solve = function(board){
   var _numSolved, i$, cell, rowPossible, colPossible, possible, impossible, possibleCopy, j$, len$, possibility, foundImpossible, newRowPossible, k$, ref$, len1$, rowPeer, newColPossible, colPeer, boardJson, error;
   do {
     _numSolved = numSolved(board);
-    for (i$ in board) {
-      cell = board[i$];
-      if (solved(cell)) {
-        assign(cell);
-      }
-    }
     for (i$ in board) {
       cell = board[i$];
       if (solved(cell)) {
