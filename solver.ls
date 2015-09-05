@@ -227,12 +227,12 @@ solve = (board) !->
         solve(board)
         while Object.keys(board).length != numSolved(board)
           solve(board)
-        break
+
+        setBoard(board)
+        return
       catch error
         loadBoardJson(board, boardJson)
 
-    break
-
-  setBoard(board)
+    throw new Error("unsolvable board!")
 
 solve(getBoard())

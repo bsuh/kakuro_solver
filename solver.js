@@ -298,14 +298,14 @@ solve = function(board){
         while (Object.keys(board).length !== numSolved(board)) {
           solve(board);
         }
-        break;
+        setBoard(board);
+        return;
       } catch (e$) {
         error = e$;
         loadBoardJson(board, boardJson);
       }
     }
-    break;
+    throw new Error("unsolvable board!");
   }
-  setBoard(board);
 };
 solve(getBoard());
